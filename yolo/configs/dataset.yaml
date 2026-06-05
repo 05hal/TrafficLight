@@ -1,9 +1,0 @@
-path: ../../yolo11_dataset
-train: images/train
-val: images/val
-
-nc: 3
-names:
-  0: red
-  1: yellow
-  2: green
