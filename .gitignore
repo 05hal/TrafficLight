@@ -1,2 +1,6 @@
 fasterrcnn_resnet50_coco.pth 
 *.pth 
+*.pt
+resnet/dataset/
+resnet/results/*.jpg
+resnet/checkpoints/
