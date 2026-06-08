@@ -9,3 +9,4 @@ vit/dataset/
 vit/_merged_dataset/
 vit/results/*.jpg
 vit/checkpoints/
+__pycache__/

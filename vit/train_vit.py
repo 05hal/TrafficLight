@@ -36,6 +36,7 @@ class TrainConfig:
     aug_strength: float = 0.3
     num_workers: int = 4
     use_amp: bool = True
+    class_weights: bool = False
     checkpoint_dir: str = ""
     results_dir: str = ""
     verbose: bool = True
@@ -178,22 +179,28 @@ def train(config: TrainConfig) -> TrainResult:
     val_set = datasets.ImageFolder(data_dir / "val", transform=eval_tfm)
     class_names = train_set.classes
 
-    class_weights = compute_class_weights(train_set).to(device)
-    if config.verbose:
-        print(f"  class_weights: {dict(zip(class_names, [f'{w:.2f}' for w in class_weights]))}")
-
-    sampler = make_weighted_sampler(train_set)
-    train_loader = DataLoader(
-        train_set, batch_size=config.batch_size, sampler=sampler,
-        num_workers=config.num_workers, pin_memory=True, drop_last=True,
-    )
+    if config.class_weights:
+        cw = compute_class_weights(train_set).to(device)
+        if config.verbose:
+            print(f"  class_weights: {dict(zip(class_names, [f'{w:.2f}' for w in cw]))}")
+        sampler = make_weighted_sampler(train_set)
+        train_loader = DataLoader(
+            train_set, batch_size=config.batch_size, sampler=sampler,
+            num_workers=config.num_workers, pin_memory=True, drop_last=True,
+        )
+    else:
+        cw = None
+        train_loader = DataLoader(
+            train_set, batch_size=config.batch_size, shuffle=True,
+            num_workers=config.num_workers, pin_memory=True, drop_last=True,
+        )
     val_loader = DataLoader(
         val_set, batch_size=config.batch_size, shuffle=False,
         num_workers=config.num_workers, pin_memory=True,
     )
 
     model = build_model(len(class_names), class_names).to(device)
-    criterion = nn.CrossEntropyLoss(weight=class_weights)
+    criterion = nn.CrossEntropyLoss(weight=cw)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config.epochs)
 
@@ -292,6 +299,7 @@ def main() -> None:
     parser.add_argument("--aug-strength", type=float, default=0.3)
     parser.add_argument("--num-workers", type=int, default=4)
     parser.add_argument("--no-amp", action="store_true")
+    parser.add_argument("--class-weights", action="store_true", help="Use class weights + weighted sampler for imbalanced data.")
     parser.add_argument("--checkpoint-dir", type=Path, default=vit_dir / "checkpoints")
     parser.add_argument("--results-dir", type=Path, default=vit_dir / "results")
     args = parser.parse_args()
@@ -305,6 +313,7 @@ def main() -> None:
         aug_strength=args.aug_strength,
         num_workers=args.num_workers,
         use_amp=not args.no_amp,
+        class_weights=args.class_weights,
         checkpoint_dir=str(args.checkpoint_dir),
         results_dir=str(args.results_dir),
     )

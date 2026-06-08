@@ -132,11 +132,19 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="Predict traffic-light color with ViT.")
     parser.add_argument("--checkpoint", type=Path, default=None)
-    parser.add_argument("--images", type=Path, default=root / "test_imgs")
-    parser.add_argument("--labels", type=Path, default=root / "test_imgs" / "test_imgs_label")
+    parser.add_argument("--images", type=Path, default=None)
+    parser.add_argument("--labels", type=Path, default=None)
     parser.add_argument("--out", type=Path, default=vit_dir / "results")
     parser.add_argument("--padding", type=float, default=0.25)
+    parser.add_argument("--swap", action="store_true", help="Evaluate on train_imgs instead of test_imgs.")
     args = parser.parse_args()
+
+    if args.images is None:
+        args.images = root / ("train_imgs" if args.swap else "test_imgs")
+    if args.labels is None:
+        args.labels = root / ("train_imgs" if args.swap else "test_imgs") / (
+            "train_imgs_label" if args.swap else "test_imgs_label"
+        )
 
     if args.checkpoint is None:
         meta_path = vit_dir / "checkpoints" / "vit_trafficlight.json"

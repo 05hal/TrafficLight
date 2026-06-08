@@ -58,6 +58,7 @@ def crop_source(
     padding: float,
 ) -> Counter:
     counter = Counter()
+    id_to_name = {i: name for i, name in enumerate(class_names)}
     for img_path in images:
         label_path = label_dir / f"{img_path.stem}.txt"
         labels = read_yolo_labels(label_path)
@@ -68,9 +69,9 @@ def crop_source(
             iw, ih = src.size
         for box_idx, label in enumerate(labels):
             cls_id = label[0]
-            if cls_id >= len(class_names):
+            if cls_id not in id_to_name:
                 continue
-            cls_name = class_names[cls_id]
+            cls_name = id_to_name[cls_id]
             l, t, r, b = yolo_to_xyxy(label, iw, ih, padding)
             if r <= l or b <= t:
                 continue
@@ -118,6 +119,11 @@ def main() -> None:
         metavar=("NAME", "IMAGES", "LABELS"),
         help="Extra data source: name images_dir labels_dir (can repeat).",
     )
+    parser.add_argument(
+        "--swap", action="store_true",
+        help="Swap roles: use test_imgs for train+val, train_imgs for test. "
+             "Useful when test_imgs have more consistent annotation style.",
+    )
     args = parser.parse_args()
 
     rng = random.Random(args.seed)
@@ -126,24 +132,27 @@ def main() -> None:
         shutil.rmtree(args.out)
     args.out.mkdir(parents=True, exist_ok=True)
 
-    train_img_dir = root / "train_imgs"
-    train_lbl_dir = train_img_dir / "train_imgs_label"
-    train_classes = read_classes(train_lbl_dir / "classes.txt")
-    all_train = image_paths(train_img_dir)
+    if args.swap:
+        fit_img_dir, fit_lbl_dir = root / "test_imgs", root / "test_imgs" / "test_imgs_label"
+        eval_img_dir, eval_lbl_dir = root / "train_imgs", root / "train_imgs" / "train_imgs_label"
+    else:
+        fit_img_dir, fit_lbl_dir = root / "train_imgs", root / "train_imgs" / "train_imgs_label"
+        eval_img_dir, eval_lbl_dir = root / "test_imgs", root / "test_imgs" / "test_imgs_label"
 
-    fit_imgs, val_imgs = stratified_split(all_train, train_lbl_dir, args.val_ratio, rng)
+    fit_classes = read_classes(fit_lbl_dir / "classes.txt")
+    eval_classes = read_classes(eval_lbl_dir / "classes.txt")
+    all_fit = image_paths(fit_img_dir)
 
-    print(f"Classes (train): {train_classes}")
-    c1 = crop_source(fit_imgs, train_lbl_dir, args.out, "train", train_classes, args.padding)
-    c2 = crop_source(val_imgs, train_lbl_dir, args.out, "val", train_classes, args.padding)
+    fit_imgs, val_imgs = stratified_split(all_fit, fit_lbl_dir, args.val_ratio, rng)
+
+    print(f"Classes (fit):  {fit_classes}")
+    print(f"Classes (eval): {eval_classes}")
+    c1 = crop_source(fit_imgs, fit_lbl_dir, args.out, "train", fit_classes, args.padding)
+    c2 = crop_source(val_imgs, fit_lbl_dir, args.out, "val", fit_classes, args.padding)
     print(f"  train crops: {sum(c1.values())} {dict(c1)}")
     print(f"  val crops:   {sum(c2.values())} {dict(c2)}")
 
-    test_img_dir = root / "test_imgs"
-    test_lbl_dir = test_img_dir / "test_imgs_label"
-    test_classes = read_classes(test_lbl_dir / "classes.txt")
-    print(f"Classes (test):  {test_classes}")
-    c3 = crop_source(image_paths(test_img_dir), test_lbl_dir, args.out, "test", test_classes, args.padding)
+    c3 = crop_source(image_paths(eval_img_dir), eval_lbl_dir, args.out, "test", eval_classes, args.padding)
     print(f"  test crops:  {sum(c3.values())} {dict(c3)}")
 
     extra = []
