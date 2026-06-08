@@ -4,3 +4,8 @@ fasterrcnn_resnet50_coco.pth
 resnet/dataset/
 resnet/results/*.jpg
 resnet/checkpoints/
+
+vit/dataset/
+vit/_merged_dataset/
+vit/results/*.jpg
+vit/checkpoints/
