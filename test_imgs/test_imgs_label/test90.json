@@ -1,0 +1,1 @@
+{"path":"D:\\classProject\\TrafficLight\\test_imgs\\test90.jpg","outputs":{"object":[{"name":"red","bndbox":{"xmin":552,"ymin":716,"xmax":639,"ymax":998}}]},"time_labeled":1781017624223,"labeled":true,"size":{"width":1080,"height":1920,"depth":3}}
