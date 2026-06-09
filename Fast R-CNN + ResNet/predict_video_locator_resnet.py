@@ -46,7 +46,7 @@ def load_locator(checkpoint_arg: Path | None, model_min_size: int, model_max_siz
 
 def load_resnet(checkpoint_arg: Path | None, device: torch.device):
     if checkpoint_arg is None:
-        meta_path = Path(__file__).resolve().parents[1] / "resnet" / "checkpoints" / "resnet18_trafficlight.json"
+        meta_path = Path(__file__).resolve().parent / "checkpoints" / "resnet18_trafficlight.json"
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
         checkpoint_arg = Path(meta["checkpoint"])
     with checkpoint_arg.open("rb") as f:

@@ -3,14 +3,13 @@ fasterrcnn_resnet50_coco.pth
 *.pt
 __pycache__/
 */__pycache__/
-resnet/dataset/
-resnet/results/*.jpg
-resnet/checkpoints/
-resnet/video_results/
+Fast R-CNN + ResNet/dataset/
+Fast R-CNN + ResNet/results/*.jpg
+Fast R-CNN + ResNet/checkpoints/
+Fast R-CNN + ResNet/video_results/
 vit/dataset/
 vit/_merged_dataset/
 vit/results/*.jpg
 vit/checkpoints/
-Faster R-CNN/checkpoints/
-Faster R-CNN/locator_results/
-Faster R-CNN/locator_video_results/
+Fast R-CNN + ResNet/locator_results/
+Fast R-CNN + ResNet/locator_video_results/
