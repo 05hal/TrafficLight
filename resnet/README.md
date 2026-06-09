@@ -1,8 +1,8 @@
 # ResNet traffic-light prediction
 
-This folder trains and evaluates a ResNet18 traffic-light color classifier from the existing YOLO-format annotations.
+This folder trains a ResNet18 traffic-light color classifier and renders predictions on `test.mp4`.
 
-ResNet is used as a classifier. It does not locate traffic lights by itself. The YOLO label files provide bounding boxes, and `prepare_resnet_dataset.py` crops those boxes into class folders before training.
+ResNet is used as a classifier. It does not locate traffic lights by itself. The video script uses the existing `test_imgs/test_imgs_label` boxes as the traffic-light position prior, then classifies each cropped region as `red`, `yellow`, or `green`.
 
 ## Run
 
@@ -30,20 +30,18 @@ Predict on test images:
 python .\resnet\predict_resnet.py
 ```
 
-## Current Result
+Render predictions on `test.mp4`:
 
-The latest local run produced:
-
-```text
-Boxes: 100
-Correct: 86
-Accuracy: 0.860
+```powershell
+python .\resnet\predict_video_resnet.py
 ```
 
-Detailed per-box predictions are saved in:
+The video result is written to:
 
 ```text
-resnet/results/predictions.csv
+resnet/video_results/test_predicted.mp4
 ```
 
-Model checkpoints, cropped datasets, and rendered result images are ignored by Git because they are generated artifacts.
+The same folder also contains `frame_predictions.csv`, `case_analysis.md`, `success_cases/`, and `failure_cases/`.
+
+The current prediction scripts use no extra bbox padding by default. This keeps the crop focused on the annotated traffic-light region and improves red-light recognition on `test.mp4`.
