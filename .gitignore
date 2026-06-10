@@ -1,2 +1,15 @@
-fasterrcnn_resnet50_coco.pth 
-*.pth 
+fasterrcnn_resnet50_coco.pth
+*.pth
+*.pt
+__pycache__/
+*/__pycache__/
+Fast R-CNN + ResNet/dataset/
+Fast R-CNN + ResNet/results/*.jpg
+Fast R-CNN + ResNet/checkpoints/
+Fast R-CNN + ResNet/video_results/
+vit/dataset/
+vit/_merged_dataset/
+vit/results/*.jpg
+vit/checkpoints/
+Fast R-CNN + ResNet/locator_results/
+Fast R-CNN + ResNet/locator_video_results/

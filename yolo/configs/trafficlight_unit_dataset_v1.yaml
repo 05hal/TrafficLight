@@ -1,0 +1,9 @@
+path: ../../trafficlight_unit_dataset_v1
+train: images/train
+val: images/val
+
+nc: 3
+names:
+  0: red
+  1: yellow
+  2: green
