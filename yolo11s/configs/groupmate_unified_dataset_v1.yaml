@@ -1,0 +1,9 @@
+path: D:/mine/bjtu/交通模型预测/homework/groupmate_unified_dataset_v1
+train: images/train
+val: images/val
+
+nc: 3
+names:
+  0: green
+  1: yellow
+  2: red
